@@ -253,10 +253,12 @@
       margin: 0 2px;
       flex-shrink: 0;
     }
+    .ctx-row-split .split-spacer {
+      flex: 1;
+    }
     .ctx-row-split .split-chevron {
       color: rgba(255,255,255,0.45);
       font-size: 11px;
-      margin-left: auto;
       padding-left: 4px;
       flex-shrink: 0;
     }
@@ -519,12 +521,14 @@
 <div class="ctx-menu" id="ctxMenu">
   <div class="ctx-row-split">
     <span class="split-item" id="splitItem1">Logs</span>
+    <span class="split-spacer" id="splitSpacerA"></span>
     <span class="split-sep"></span>
     <span class="split-item" id="splitItem2">Traces</span>
     <span class="split-group3">
       <span class="split-sep"></span>
       <span class="split-item" id="splitItem3">Metrics</span>
     </span>
+    <span class="split-spacer" id="splitSpacerB"></span>
     <span class="split-chevron">&#x276F;</span>
   </div>
 
@@ -616,9 +620,14 @@
   }
 
   function applyChecks() {
+    const spacerA = document.getElementById('splitSpacerA');
+
     // item visibility
     splitItem1.style.display = chk1.checked ? '' : 'none';
     splitItem2.style.display = chk2.checked ? '' : 'none';
+
+    // spacerA sits between item1 and item2 — only expand when both are visible
+    if (spacerA) spacerA.style.flex = (chk1.checked && chk2.checked) ? '1' : '0';
 
     // group3 visibility (contains sep + item3)
     const group3 = document.querySelector('.split-group3');
