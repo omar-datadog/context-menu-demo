@@ -33,12 +33,55 @@
       gap: 4px;
     }
 
+    .control-label-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .control-label {
       font-family: 'Noto Sans', sans-serif;
       font-size: 11px;
       color: #5c6480;
       letter-spacing: 0.04em;
       text-transform: uppercase;
+    }
+
+    /* custom checkbox */
+    .ds-toggle {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 13px;
+      height: 13px;
+      border: 1.5px solid #3a3f55;
+      border-radius: 3px;
+      background: #262934;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ds-toggle:checked {
+      background: #4d7ef7;
+      border-color: #4d7ef7;
+    }
+    .ds-toggle:checked::after {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 0px;
+      width: 5px;
+      height: 8px;
+      border: 1.5px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    /* dim the select when unchecked */
+    .control-group.disabled .control-select {
+      opacity: 0.35;
+      pointer-events: none;
     }
 
     .control-select {
@@ -303,8 +346,11 @@
 
 <!-- ══ CONTROLS ══ -->
 <div class="controls">
-  <div class="control-group">
-    <span class="control-label">Data Source 1</span>
+  <div class="control-group" id="cg1">
+    <div class="control-label-row">
+      <input type="checkbox" class="ds-toggle" id="chk1" checked>
+      <span class="control-label">Data Source 1</span>
+    </div>
     <select class="control-select" id="ds1">
       <option value="Agent Events">Agent Events</option>
       <option value="Audit Events">Audit Events</option>
@@ -341,8 +387,11 @@
     </select>
   </div>
 
-  <div class="control-group">
-    <span class="control-label">Data Source 2</span>
+  <div class="control-group" id="cg2">
+    <div class="control-label-row">
+      <input type="checkbox" class="ds-toggle" id="chk2" checked>
+      <span class="control-label">Data Source 2</span>
+    </div>
     <select class="control-select" id="ds2">
       <option value="Agent Events">Agent Events</option>
       <option value="Audit Events">Audit Events</option>
@@ -379,8 +428,11 @@
     </select>
   </div>
 
-  <div class="control-group">
-    <span class="control-label">Data Source 3</span>
+  <div class="control-group" id="cg3">
+    <div class="control-label-row">
+      <input type="checkbox" class="ds-toggle" id="chk3" checked>
+      <span class="control-label">Data Source 3</span>
+    </div>
     <select class="control-select" id="ds3">
       <option value="Agent Events">Agent Events</option>
       <option value="Audit Events">Audit Events</option>
@@ -526,6 +578,12 @@
   const ds1        = document.getElementById('ds1');
   const ds2        = document.getElementById('ds2');
   const ds3        = document.getElementById('ds3');
+  const chk1       = document.getElementById('chk1');
+  const chk2       = document.getElementById('chk2');
+  const chk3       = document.getElementById('chk3');
+  const cg1        = document.getElementById('cg1');
+  const cg2        = document.getElementById('cg2');
+  const cg3        = document.getElementById('cg3');
 
   // Sync dropdown values into the menu's first row (preserving badges)
   // Each call resets the badge to loading state, then resolves after 2s
@@ -546,14 +604,37 @@
   }
 
   function syncLabels() {
+    // Items 1 & 2 always occupy their slots (hidden via display:none when unchecked)
     setLabelWithBadge(splitItem1, ds1.value, 0);
     setLabelWithBadge(splitItem2, ds2.value, 1);
     setLabelWithBadge(splitItem3, ds3.value, 2);
+    applyChecks();
+  }
+
+  function applyChecks() {
+    // item visibility
+    splitItem1.style.display = chk1.checked ? '' : 'none';
+    // sep between 1&2: hide if item1 is off, or both off
+    const sep1 = splitItem1.nextElementSibling; // .split-sep
+    if (sep1) sep1.style.display = (chk1.checked && chk2.checked) ? '' : 'none';
+    splitItem2.style.display = chk2.checked ? '' : 'none';
+
+    // group3 visibility (contains sep + item3)
+    const group3 = document.querySelector('.split-group3');
+    if (group3) group3.style.display = chk3.checked ? '' : 'none';
+
+    // dim selects when unchecked
+    cg1.classList.toggle('disabled', !chk1.checked);
+    cg2.classList.toggle('disabled', !chk2.checked);
+    cg3.classList.toggle('disabled', !chk3.checked);
   }
 
   ds1.addEventListener('change', syncLabels);
   ds2.addEventListener('change', syncLabels);
   ds3.addEventListener('change', syncLabels);
+  chk1.addEventListener('change', applyChecks);
+  chk2.addEventListener('change', applyChecks);
+  chk3.addEventListener('change', applyChecks);
   syncLabels();
 
   function showMenu(x, y) {
