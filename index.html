@@ -215,6 +215,24 @@
       flex-shrink: 0;
     }
 
+    /* ── Data source index badge ── */
+    .ds-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.13);
+      color: rgba(255,255,255,0.55);
+      font-size: 9px;
+      font-weight: 500;
+      line-height: 1;
+      margin-left: 4px;
+      flex-shrink: 0;
+      vertical-align: middle;
+    }
+
     /* ── Divider ── */
     .ctx-divider {
       height: 1px;
@@ -431,12 +449,12 @@
 <!-- ══ CONTEXT MENU ══ -->
 <div class="ctx-menu" id="ctxMenu">
   <div class="ctx-row-split">
-    <span class="split-item" id="splitItem1">Logs</span>
+    <span class="split-item" id="splitItem1">Logs<span class="ds-badge">0</span></span>
     <span class="split-sep"></span>
-    <span class="split-item" id="splitItem2">Traces</span>
+    <span class="split-item" id="splitItem2">Traces<span class="ds-badge">1</span></span>
     <span class="split-group3">
       <span class="split-sep"></span>
-      <span class="split-item" id="splitItem3">Metrics</span>
+      <span class="split-item" id="splitItem3">Metrics<span class="ds-badge">2</span></span>
     </span>
     <span class="split-chevron">&#x276F;</span>
   </div>
@@ -474,11 +492,15 @@
   const ds2        = document.getElementById('ds2');
   const ds3        = document.getElementById('ds3');
 
-  // Sync dropdown values into the menu's first row
+  // Sync dropdown values into the menu's first row (preserving badges)
+  function setLabelWithBadge(el, text, index) {
+    el.innerHTML = text + '<span class="ds-badge">' + index + '</span>';
+  }
+
   function syncLabels() {
-    splitItem1.textContent = ds1.value;
-    splitItem2.textContent = ds2.value;
-    splitItem3.textContent = ds3.value;
+    setLabelWithBadge(splitItem1, ds1.value, 0);
+    setLabelWithBadge(splitItem2, ds2.value, 1);
+    setLabelWithBadge(splitItem3, ds3.value, 2);
   }
 
   ds1.addEventListener('change', syncLabels);
