@@ -224,13 +224,48 @@
       height: 14px;
       border-radius: 50%;
       background: rgba(255,255,255,0.13);
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.44);
       font-size: 9px;
       font-weight: 500;
       line-height: 1;
       margin-left: 4px;
       flex-shrink: 0;
       vertical-align: middle;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* number inside badge */
+    .ds-badge .badge-num {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      position: relative;
+      z-index: 1;
+    }
+    .ds-badge.loaded .badge-num {
+      opacity: 1;
+    }
+
+    /* spinner arc — visible until loaded */
+    .ds-badge::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border-radius: 50%;
+      border: 1.5px solid transparent;
+      border-top-color: rgba(255,255,255,0.4);
+      border-right-color: rgba(255,255,255,0.15);
+      animation: badge-spin 0.7s linear infinite;
+      opacity: 1;
+      transition: opacity 0.15s ease;
+    }
+    .ds-badge.loaded::after {
+      opacity: 0;
+      animation: none;
+    }
+
+    @keyframes badge-spin {
+      to { transform: rotate(360deg); }
     }
 
     /* ── Divider ── */
@@ -449,12 +484,12 @@
 <!-- ══ CONTEXT MENU ══ -->
 <div class="ctx-menu" id="ctxMenu">
   <div class="ctx-row-split">
-    <span class="split-item" id="splitItem1">Logs<span class="ds-badge">0</span></span>
+    <span class="split-item" id="splitItem1">Logs<span class="ds-badge"><span class="badge-num">0</span></span></span>
     <span class="split-sep"></span>
-    <span class="split-item" id="splitItem2">Traces<span class="ds-badge">1</span></span>
+    <span class="split-item" id="splitItem2">Traces<span class="ds-badge"><span class="badge-num">1</span></span></span>
     <span class="split-group3">
       <span class="split-sep"></span>
-      <span class="split-item" id="splitItem3">Metrics<span class="ds-badge">2</span></span>
+      <span class="split-item" id="splitItem3">Metrics<span class="ds-badge"><span class="badge-num">2</span></span></span>
     </span>
     <span class="split-chevron">&#x276F;</span>
   </div>
@@ -493,8 +528,21 @@
   const ds3        = document.getElementById('ds3');
 
   // Sync dropdown values into the menu's first row (preserving badges)
+  // Each call resets the badge to loading state, then resolves after 2s
+  const badgeTimers = {};
+
   function setLabelWithBadge(el, text, index) {
-    el.innerHTML = text + '<span class="ds-badge">' + index + '</span>';
+    // Clear any pending timer for this slot
+    if (badgeTimers[index]) clearTimeout(badgeTimers[index]);
+
+    el.innerHTML = text + '<span class="ds-badge"><span class="badge-num">' + index + '</span></span>';
+
+    // Start in loading state (no .loaded class yet)
+    const badge = el.querySelector('.ds-badge');
+
+    badgeTimers[index] = setTimeout(() => {
+      badge.classList.add('loaded');
+    }, 2000);
   }
 
   function syncLabels() {
