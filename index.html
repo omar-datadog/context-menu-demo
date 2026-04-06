@@ -253,9 +253,8 @@
       margin: 0 2px;
       flex-shrink: 0;
     }
-    .ctx-row-split .split-spacer {
-      flex: 1;
-    }
+    .ctx-row-split #splitSpacerA { flex: 1; }
+    .ctx-row-split #splitSpacerB { flex: 2; }
     .ctx-row-split .split-chevron {
       color: rgba(255,255,255,0.45);
       font-size: 11px;
@@ -628,6 +627,8 @@
 
     // spacerA sits between item1 and item2 — only expand when both are visible
     if (spacerA) spacerA.style.flex = (chk1.checked && chk2.checked) ? '1' : '0';
+    const spacerB = document.getElementById('splitSpacerB');
+    if (spacerB) spacerB.style.flex = (chk1.checked && chk2.checked) ? '2' : '1';
 
     // group3 visibility (contains sep + item3)
     const group3 = document.querySelector('.split-group3');
