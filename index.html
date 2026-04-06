@@ -6,6 +6,7 @@
   <title>Context Menu Demo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -259,57 +260,34 @@
       flex-shrink: 0;
     }
 
-    /* ── Data source index badge ── */
-    .ds-badge {
+    /* ── Material icon inside split items & rows ── */
+    .mi {
+      font-family: 'Material Icons Round';
+      font-style: normal;
+      font-weight: normal;
+      font-size: 13px;
+      line-height: 1;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.13);
-      color: rgba(255,255,255,0.44);
-      font-size: 9px;
-      font-weight: 500;
-      line-height: 1;
-      margin-left: 4px;
+      color: rgba(255,255,255,0.5);
       flex-shrink: 0;
-      vertical-align: middle;
-      position: relative;
-      overflow: hidden;
+      user-select: none;
     }
-
-    /* number inside badge */
-    .ds-badge .badge-num {
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      position: relative;
-      z-index: 1;
+    /* icon before the label in split items */
+    .split-item .mi {
+      margin-right: 3px;
     }
-    .ds-badge.loaded .badge-num {
-      opacity: 1;
-    }
-
-    /* spinner arc — visible until loaded */
-    .ds-badge::after {
-      content: '';
-      position: absolute;
-      inset: 2px;
-      border-radius: 50%;
-      border: 1.5px solid transparent;
-      border-top-color: rgba(255,255,255,0.4);
-      border-right-color: rgba(255,255,255,0.15);
-      animation: badge-spin 0.7s linear infinite;
-      opacity: 1;
-      transition: opacity 0.15s ease;
-    }
-    .ds-badge.loaded::after {
-      opacity: 0;
-      animation: none;
-    }
-
-    @keyframes badge-spin {
-      to { transform: rotate(360deg); }
+    /* icon before the label in standard rows */
+    .row-icon {
+      font-family: 'Material Icons Round';
+      font-style: normal;
+      font-weight: normal;
+      font-size: 14px;
+      line-height: 1;
+      color: rgba(255,255,255,0.4);
+      margin-right: 6px;
+      flex-shrink: 0;
+      user-select: none;
     }
 
     /* ── Divider ── */
@@ -335,6 +313,8 @@
     .ctx-row .row-label {
       padding: 4px 6px;
       color: #e8eaf0;
+      display: flex;
+      align-items: center;
     }
     .ctx-row .row-chevron {
       color: rgba(255,255,255,0.45);
@@ -537,12 +517,12 @@
 <!-- ══ CONTEXT MENU ══ -->
 <div class="ctx-menu" id="ctxMenu">
   <div class="ctx-row-split">
-    <span class="split-item" id="splitItem1">Logs<span class="ds-badge"><span class="badge-num">0</span></span></span>
+    <span class="split-item" id="splitItem1">Logs</span>
     <span class="split-sep"></span>
-    <span class="split-item" id="splitItem2">Traces<span class="ds-badge"><span class="badge-num">1</span></span></span>
+    <span class="split-item" id="splitItem2">Traces</span>
     <span class="split-group3">
       <span class="split-sep"></span>
-      <span class="split-item" id="splitItem3">Metrics<span class="ds-badge"><span class="badge-num">2</span></span></span>
+      <span class="split-item" id="splitItem3">Metrics</span>
     </span>
     <span class="split-chevron">&#x276F;</span>
   </div>
@@ -550,23 +530,23 @@
   <div class="ctx-divider"></div>
 
   <div class="ctx-row">
-    <span class="row-label">Copy</span>
+    <span class="row-label"><span class="row-icon">content_copy</span>Copy</span>
     <span class="row-chevron">&#x276F;</span>
   </div>
 
   <div class="ctx-row">
-    <span class="row-label">Filter by</span>
+    <span class="row-label"><span class="row-icon">filter_list</span>Filter by</span>
     <span class="row-chevron">&#x276F;</span>
   </div>
 
   <div class="ctx-divider"></div>
 
   <div class="ctx-row">
-    <span class="row-label">Add annotation</span>
+    <span class="row-label"><span class="row-icon">edit_note</span>Add annotation</span>
   </div>
 
   <div class="ctx-row">
-    <span class="row-label">Isolate this series</span>
+    <span class="row-label"><span class="row-icon">hub</span>Isolate this series</span>
   </div>
 </div>
 
@@ -586,29 +566,51 @@
   const cg2        = document.getElementById('cg2');
   const cg3        = document.getElementById('cg3');
 
-  // Sync dropdown values into the menu's first row (preserving badges)
-  // Each call resets the badge to loading state, then resolves after 2s
-  const badgeTimers = {};
+  // Data source → Material Icon mapping
+  const DS_ICONS = {
+    'Agent Events':      'smart_toy',
+    'Audit Events':      'policy',
+    'Change Tracking':   'track_changes',
+    'CI Pipelines':      'merge',
+    'CI Tests':          'science',
+    'Cloud Cost Mgmt':   'savings',
+    'Code Security':     'security',
+    'Containers':        'view_in_ar',
+    'DB Hosts':          'dns',
+    'DB Queries':        'table_chart',
+    'Events':            'event',
+    'Host':              'computer',
+    'Incidents':         'warning',
+    'Logs':              'article',
+    'Metrics':           'show_chart',
+    'NetFlow':           'network_check',
+    'Network':           'hub',
+    'Pods':              'grain',
+    'Processes':         'memory',
+    'Profiles':          'person',
+    'Product Analytics': 'insights',
+    'Cost Recs':         'recommend',
+    'RUM':               'web',
+    'Security Findings': 'gpp_maybe',
+    'Security Signals':  'radar',
+    'Security Traces':   'vpn_key',
+    'Serverless':        'cloud_queue',
+    'SLO':               'speed',
+    'Software Catalog':  'inventory_2',
+    'Service: x':        'miscellaneous_services',
+    'Synthetics':        'monitor_heart',
+    'Traces':            'account_tree',
+  };
 
-  function setLabelWithBadge(el, text, index) {
-    // Clear any pending timer for this slot
-    if (badgeTimers[index]) clearTimeout(badgeTimers[index]);
-
-    el.innerHTML = text + '<span class="ds-badge"><span class="badge-num">' + index + '</span></span>';
-
-    // Start in loading state (no .loaded class yet)
-    const badge = el.querySelector('.ds-badge');
-
-    badgeTimers[index] = setTimeout(() => {
-      badge.classList.add('loaded');
-    }, 2000);
+  function setLabel(el, text) {
+    const icon = DS_ICONS[text] || 'circle';
+    el.innerHTML = '<span class="mi">' + icon + '</span>' + text;
   }
 
   function syncLabels() {
-    // Items 1 & 2 always occupy their slots (hidden via display:none when unchecked)
-    setLabelWithBadge(splitItem1, ds1.value, 0);
-    setLabelWithBadge(splitItem2, ds2.value, 1);
-    setLabelWithBadge(splitItem3, ds3.value, 2);
+    setLabel(splitItem1, ds1.value);
+    setLabel(splitItem2, ds2.value);
+    setLabel(splitItem3, ds3.value);
     applyChecks();
   }
 
