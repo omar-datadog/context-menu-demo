@@ -246,6 +246,7 @@
     }
     .ctx-row-split .split-item:hover { background: rgba(255,255,255,0.08); }
     .ctx-row-split .split-sep {
+      display: none;
       width: 1px;
       height: 16px;
       background: rgba(255,255,255,0.18);
@@ -617,9 +618,6 @@
   function applyChecks() {
     // item visibility
     splitItem1.style.display = chk1.checked ? '' : 'none';
-    // sep between 1&2: hide if item1 is off, or both off
-    const sep1 = splitItem1.nextElementSibling; // .split-sep
-    if (sep1) sep1.style.display = (chk1.checked && chk2.checked) ? '' : 'none';
     splitItem2.style.display = chk2.checked ? '' : 'none';
 
     // group3 visibility (contains sep + item3)
